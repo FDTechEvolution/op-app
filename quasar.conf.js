@@ -6,6 +6,7 @@ module.exports = function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     boot: [
+      'axios'
     ],
 
     css: [
@@ -37,8 +38,12 @@ module.exports = function (ctx) {
       //            (not treeshaking Quasar; biggest bundle size; convenient)
       all: 'auto',
 
-      components: [],
-      directives: [],
+      components: [
+        'QBtn'
+      ],
+      directives: [
+        'ClosePopup'
+      ],
 
       // Quasar plugins
       plugins: [
@@ -69,6 +74,16 @@ module.exports = function (ctx) {
     },
 
     devServer: {
+      proxy: {
+        // proxy all requests starting with /api to jsonplaceholder
+        '/api': {
+          target: 'https://sv.orderpang.com/',
+          changeOrigin: true,
+          pathRewrite: {
+            '^/api': ''
+          }
+        }
+      },
       // https: true,
       // port: 8080,
       open: true // opens browser window automatically
@@ -151,7 +166,7 @@ module.exports = function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        // appId: 'op-app'
+        // appId: 'quasar-crud'
       }
     }
   }

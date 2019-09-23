@@ -1,4 +1,4 @@
-# Quasar App (op-app)
+# Quasar App (quasar-crud)
 
 A Quasar Framework app
 
