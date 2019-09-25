@@ -142,12 +142,7 @@ export default {
           })
         })
         .catch(() => {
-          this.$q.notify({
-            color: 'negative',
-            position: 'top',
-            message: 'Raw Orders Loading failed.',
-            icon: 'report_problem'
-          })
+          this.orderError('Raw Order')
         })
     },
     loadOrdersConfirm () {
@@ -166,12 +161,7 @@ export default {
           })
         })
         .catch(() => {
-          this.$q.notify({
-            color: 'negative',
-            position: 'top',
-            message: 'Confirm Orders Loading failed.',
-            icon: 'report_problem'
-          })
+          this.orderError('Confirm Order')
         })
     },
     loadOrdersVO () {
@@ -190,13 +180,16 @@ export default {
           })
         })
         .catch(() => {
-          this.$q.notify({
-            color: 'negative',
-            position: 'top',
-            message: 'VO Orders Loading failrd.',
-            icon: 'report_problem'
-          })
+          this.orderError('Cancel Order')
         })
+    },
+    orderError (orderFunc) {
+      this.$q.notify({
+        color: 'negative',
+        position: 'top',
+        message: orderFunc + ' Loading failrd.',
+        icon: 'report_problem'
+      })
     }
   },
   created: function () {
