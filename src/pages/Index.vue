@@ -31,8 +31,8 @@
             <q-separator />
             <div v-for="(item, index) in orderList" :key="index">
               <div class="row" style="line-height: 40px;">
-                <div class="col-8">{{index+1}}. {{customer[index].name}}</div>
-                <div class="col-2 text-center">{{user[index].name}}</div>
+                <div class="col-8">{{index+1}}. {{customer.DR[index]}}</div>
+                <div class="col-2 text-center">{{user.DR[index]}}</div>
                 <div class="col-2 text-center">
                   <q-btn :ripple="{ center: true }" color="secondary" glossy size="sm" label="ยืนยัน" no-caps />&nbsp;
                   <q-btn :ripple="{ center: true }" color="deep-orange" glossy size="sm" label="ยกเลิก" no-caps />
@@ -53,8 +53,8 @@
             <q-separator />
             <div v-for="(item, index) in orderListCF" :key="index">
               <div class="row" style="line-height: 40px;">
-                <div class="col-8">{{index+1}}. {{customer[index].name}}</div>
-                <div class="col-2 text-center">{{user[index].name}}</div>
+                <div class="col-8">{{index+1}}. {{customer.CF[index]}}</div>
+                <div class="col-2 text-center">{{user.CF[index]}}</div>
                 <div class="col-2 text-center"></div>
               </div>
               <q-separator />
@@ -92,8 +92,8 @@
             <q-separator />
             <div v-for="(item, index) in orderListVO" :key="index">
               <div class="row" style="line-height: 40px;">
-                <div class="col-8">{{index+1}}. {{customer[index].name}}</div>
-                <div class="col-2 text-center">{{user[index].name}}</div>
+                <div class="col-8">{{index+1}}. {{customer.VO[index]}}</div>
+                <div class="col-2 text-center">{{user.VO[index]}}</div>
                 <div class="col-2 text-center"></div>
               </div>
               <q-separator />
@@ -113,8 +113,16 @@ export default {
       orderList: [],
       orderListCF: [],
       orderListVO: [],
-      user: [],
-      customer: []
+      user: {
+        DR: [],
+        CF: [],
+        VO: []
+      },
+      customer: {
+        DR: [],
+        CF: [],
+        VO: []
+      }
     }
   },
   methods: {
@@ -122,8 +130,16 @@ export default {
       this.$axios.get('api/orders/')
         .then((response) => {
           this.orderList = response.data
-          this.loadUser(this.orderList)
-          this.loadCustomer(this.orderList)
+          this.orderList.forEach((resp, index) => {
+            this.$axios.get('api/users/get/' + resp.user_id)
+              .then((response) => {
+                this.user.DR[index] = response.data.name
+              })
+            this.$axios.get('api/customers/all/' + resp.customer_id)
+              .then((response) => {
+                this.customer.DR[index] = response.data.name
+              })
+          })
         })
         .catch(() => {
           this.$q.notify({
@@ -138,8 +154,16 @@ export default {
       this.$axios.get('api/orders/orderConfirm/')
         .then((response) => {
           this.orderListCF = response.data
-          this.loadUser(this.orderListCF)
-          this.loadCustomer(this.orderListCF)
+          this.orderListCF.forEach((resp, index) => {
+            this.$axios.get('api/users/get/' + resp.user_id)
+              .then((response) => {
+                this.user.CF[index] = response.data.name
+              })
+            this.$axios.get('api/customers/all/' + resp.customer_id)
+              .then((response) => {
+                this.customer.CF[index] = response.data.name
+              })
+          })
         })
         .catch(() => {
           this.$q.notify({
@@ -154,8 +178,16 @@ export default {
       this.$axios.get('api/orders/orderCancel/')
         .then((response) => {
           this.orderListVO = response.data
-          this.loadUser(this.orderListVO)
-          this.loadOrdersConfirm(this.orderListVO)
+          this.orderListVO.forEach((resp, index) => {
+            this.$axios.get('api/users/get/' + resp.user_id)
+              .then((response) => {
+                this.user.VO[index] = response.data.name
+              })
+            this.$axios.get('api/customers/all/' + resp.customer_id)
+              .then((response) => {
+                this.customer.VO[index] = response.data.name
+              })
+          })
         })
         .catch(() => {
           this.$q.notify({
@@ -165,22 +197,6 @@ export default {
             icon: 'report_problem'
           })
         })
-    },
-    loadUser (order) {
-      order.forEach((resp, index) => {
-        this.$axios.get('api/users/get/' + resp.user_id)
-          .then((response) => {
-            this.user[index] = response.data
-          })
-      })
-    },
-    loadCustomer (order) {
-      order.forEach((resp, index) => {
-        this.$axios.get('api/customers/all/' + resp.customer_id)
-          .then((response) => {
-            this.customer[index] = response.data
-          })
-      })
     }
   },
   created: function () {
