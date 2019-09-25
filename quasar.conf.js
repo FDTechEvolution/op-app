@@ -76,8 +76,9 @@ module.exports = function (ctx) {
     devServer: {
       proxy: {
         // proxy all requests starting with /api to jsonplaceholder
+        // https://sv.orderpang.com/
         '/api': {
-          target: 'https://sv.orderpang.com/',
+          target: 'http://localhost/git/op-service/',
           changeOrigin: true,
           pathRewrite: {
             '^/api': ''

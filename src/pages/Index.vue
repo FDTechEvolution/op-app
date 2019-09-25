@@ -31,8 +31,8 @@
             <q-separator />
             <div v-for="(item, index) in orderList" :key="index">
               <div class="row" style="line-height: 40px;">
-                <div class="col-8">{{index+1}}. {{item.payment_method}}</div>
-                <div class="col-2 text-center">{{userName[index]}}</div>
+                <div class="col-8">{{index+1}}. {{customer[index].name}}</div>
+                <div class="col-2 text-center">{{user[index].name}}</div>
                 <div class="col-2 text-center">
                   <q-btn :ripple="{ center: true }" color="secondary" glossy size="sm" label="ยืนยัน" no-caps />&nbsp;
                   <q-btn :ripple="{ center: true }" color="deep-orange" glossy size="sm" label="ยกเลิก" no-caps />
@@ -44,7 +44,21 @@
 
           <q-tab-panel name="cf">
             <div class="text-h6 text-weight-bold">ออเดอร์ยืนยันแล้ว</div>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            <q-separator /><br/>
+            <div class="row">
+              <div class="col-8 text-weight-bold">รายการ</div>
+              <div class="col-2 text-weight-bold text-center">ผู้ส่ง</div>
+              <div class="col-2 text-weight-bold text-center">วันที่</div>
+            </div>
+            <q-separator />
+            <div v-for="(item, index) in orderListCF" :key="index">
+              <div class="row" style="line-height: 40px;">
+                <div class="col-8">{{index+1}}. {{customer[index].name}}</div>
+                <div class="col-2 text-center">{{user[index].name}}</div>
+                <div class="col-2 text-center"></div>
+              </div>
+              <q-separator />
+            </div>
           </q-tab-panel>
 
           <q-tab-panel name="wprint">
@@ -69,7 +83,21 @@
 
           <q-tab-panel name="vo">
             <div class="text-h6 text-weight-bold">ตีคืน</div>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            <q-separator /><br/>
+            <div class="row">
+              <div class="col-8 text-weight-bold">รายการ</div>
+              <div class="col-2 text-weight-bold text-center">ผู้ส่ง</div>
+              <div class="col-2 text-weight-bold text-center">วันที่</div>
+            </div>
+            <q-separator />
+            <div v-for="(item, index) in orderListVO" :key="index">
+              <div class="row" style="line-height: 40px;">
+                <div class="col-8">{{index+1}}. {{customer[index].name}}</div>
+                <div class="col-2 text-center">{{user[index].name}}</div>
+                <div class="col-2 text-center"></div>
+              </div>
+              <q-separator />
+            </div>
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
@@ -83,37 +111,82 @@ export default {
     return {
       tab: 'raworder',
       orderList: [],
-      userName: []
+      orderListCF: [],
+      orderListVO: [],
+      user: [],
+      customer: []
     }
   },
   methods: {
     loadOrders () {
-      this.$axios.get('api/orders')
+      this.$axios.get('api/orders/')
         .then((response) => {
           this.orderList = response.data
-          this.orderList.forEach((resp, index) => {
-            this.$axios.get('api/users/get/' + resp.user_id)
-              .then((response) => {
-                this.userName[index] = response.data.name
-              })
-            this.$axios.get('api/customers/all/' + resp.customer_id)
-              .then((response) => {
-                this.customers[index] = response.data
-              })
-          })
+          this.loadUser(this.orderList)
+          this.loadCustomer(this.orderList)
         })
         .catch(() => {
           this.$q.notify({
             color: 'negative',
             position: 'top',
-            message: 'Loading failed',
+            message: 'Raw Orders Loading failed.',
             icon: 'report_problem'
           })
         })
+    },
+    loadOrdersConfirm () {
+      this.$axios.get('api/orders/orderConfirm/')
+        .then((response) => {
+          this.orderListCF = response.data
+          this.loadUser(this.orderListCF)
+          this.loadCustomer(this.orderListCF)
+        })
+        .catch(() => {
+          this.$q.notify({
+            color: 'negative',
+            position: 'top',
+            message: 'Confirm Orders Loading failed.',
+            icon: 'report_problem'
+          })
+        })
+    },
+    loadOrdersVO () {
+      this.$axios.get('api/orders/orderCancel/')
+        .then((response) => {
+          this.orderListVO = response.data
+          this.loadUser(this.orderListVO)
+          this.loadOrdersConfirm(this.orderListVO)
+        })
+        .catch(() => {
+          this.$q.notify({
+            color: 'negative',
+            position: 'top',
+            message: 'VO Orders Loading failrd.',
+            icon: 'report_problem'
+          })
+        })
+    },
+    loadUser (order) {
+      order.forEach((resp, index) => {
+        this.$axios.get('api/users/get/' + resp.user_id)
+          .then((response) => {
+            this.user[index] = response.data
+          })
+      })
+    },
+    loadCustomer (order) {
+      order.forEach((resp, index) => {
+        this.$axios.get('api/customers/all/' + resp.customer_id)
+          .then((response) => {
+            this.customer[index] = response.data
+          })
+      })
     }
   },
   created: function () {
     this.loadOrders()
+    this.loadOrdersConfirm()
+    this.loadOrdersVO()
   }
 }
 </script>
